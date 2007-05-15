@@ -1,12 +1,39 @@
-# Where clause generator
-# Copyright Tim Harper
-# Usage example
-# sql = Where.new(['x=?',5]).or( Where.new('x=5').or('x=7')).to_s
-# 
-# 
+# = Where clause generator
+# == Author: Tim Harper ( "timseeharperATgmail.seeom".gsub("see", "c").gsub("AT", "@") )
 #
+# <b>Usage example</b>
+# === Returning SQL
+#
+#  sql = Where.new('x=?',5).and( Where.new('x=?',6).or('x=?',7)).to_s
+#  # returns (x=5) and ( ( x=6 ) or ( x=7 ) ) 
+#  
+# === Building a complicated where clause made easy
+#  
+#  def get_search_query_string
+#  
+#    where = Where.new
+#    where.and('users.first_name like ?', params[:search_first_name] + '%') unless params[:search_first_name].blank?
+#    where.and('users.last_name like ?', params[:search_last_name] + '%') unless params[:search_last_name].blank?
+#  
+#    status_where = Where.new
+#    for status in params[search_statuses].split(',')
+#      status_where.or 'status=?', status
+#    end
+#    where.and status_where unless status_where.blank?
+#  
+#    where.to_s
+#  end
+#  
+# User.find(:all, :conditions => get_search_query_string)
+#  
+# ===  Inline
+#  
+#    User.find(:all, :conditions => Where.new('first_name like ?', 'Tim').and('last_name like ?', 'Harper') )
+
 
 class Where
+  
+  
   def initialize(criteria=nil, *params)
     @clauses=Array.new
     
@@ -46,7 +73,8 @@ class Where
     @clauses.empty?
   end
   
-  alias :blank? :empty?  
+  alias :blank? :empty? 
+   
   class Clause
     def initialize(criteria, is_or = false)
       @is_or=is_or
