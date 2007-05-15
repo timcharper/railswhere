@@ -1,54 +1,33 @@
-=RailsWhere=
-==A Rails Active Record Where clause generator==
-By Tim Harper (Tim - C - Harper at gmail dot com)
+= Where clause generator
+== Author: Tim Harper ( "timseeharperATgmail.seeom".gsub("see", "c").gsub("AT", "@") )
 
+<b>Usage example</b>
 
-Easily and safely construct where clause queries for some of the most 
-complicated examples, including nested and/or query expressions.  Simple to use,
-fast, lightweight, and secure (uses rails sanitize_sql method to prevent SQL 
-injection)
+=== Returning SQL
 
-It's especially useful generating search queries.
-
-
-
-It can:
-
-===Generating SQL===
-
-{{{
-sql = Where.new('x=?',5).and( Where.new('x=?',6).or('x=?',7)).to_s
-# returns (x=5) and ( ( x=6 ) or ( x=7 ) ) 
-}}}
-
-===Building a complicated where clause made easy===
-
-{{{
-def get_search_query_string
-
-  where = Where.new
-  where.and('users.first_name like ?', params[:search_first_name] + '%') unless params[:search_first_name].blank?
-  where.and('users.last_name like ?', params[:search_last_name] + '%') unless params[:search_last_name].blank?
-
-  status_where = Where.new
-  for status in params[search_statuses].split(',')
-    status_where.or 'status=?', status
-  end
-  where.and status_where unless status_where.blank?
-
-  where.to_s
-end
-
+ sql = Where.new('x=?',5).and( Where.new('x=?',6).or('x=?',7)).to_s
+ # returns (x=5) and ( ( x=6 ) or ( x=7 ) ) 
+ 
+=== Building a complicated where clause made easy
+ 
+ def get_search_query_string
+ 
+   where = Where.new
+   where.and('users.first_name like ?', params[:search_first_name] + '%') unless params[:search_first_name].blank?
+   where.and('users.last_name like ?', params[:search_last_name] + '%') unless params[:search_last_name].blank?
+ 
+   status_where = Where.new
+   for status in params[search_statuses].split(',')
+     status_where.or 'status=?', status
+   end
+   where.and status_where unless status_where.blank?
+ 
+   where.to_s
+ end
+ 
 User.find(:all, :conditions => get_search_query_string)
-
-}}}
-
-===Inline===
-{{{
-
-  User.find(:all, :conditions => Where.new('first_name like ?', 'Tim').and('last_name like ?', 'Harper') )
-
-}}}
-
-==Installation==
-
+ 
+===  Inline
+ 
+   User.find(:all, :conditions => Where.new('first_name like ?', 'Tim').and('last_name like ?', 'Harper') )
+   # Sweet chaining action!

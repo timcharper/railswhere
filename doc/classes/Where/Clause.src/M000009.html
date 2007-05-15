@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>new (Where::Clause)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/where.rb, line 124</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">criteria</span>, <span class="ruby-identifier">is_or</span> = <span class="ruby-keyword kw">false</span>)
+      <span class="ruby-ivar">@is_or</span>=<span class="ruby-identifier">is_or</span>
+      
+      <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">criteria</span>.<span class="ruby-identifier">class</span><span class="ruby-operator">==</span><span class="ruby-constant">Array</span>      <span class="ruby-comment cmt"># if it's an array, sanitize it</span>
+        <span class="ruby-ivar">@criteria</span> = <span class="ruby-constant">ActiveRecord</span><span class="ruby-operator">::</span><span class="ruby-constant">Base</span>.<span class="ruby-identifier">send</span>(<span class="ruby-identifier">:sanitize_sql</span>, <span class="ruby-identifier">criteria</span>)
+      <span class="ruby-keyword kw">else</span>
+        <span class="ruby-ivar">@criteria</span> = <span class="ruby-identifier">criteria</span>.<span class="ruby-identifier">to_s</span>   <span class="ruby-comment cmt"># otherwise, run to_s.  If it's a recursive Where clause, it will return the sql we need</span>
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>
