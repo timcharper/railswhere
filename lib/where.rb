@@ -90,7 +90,7 @@ class Where
     when :where
       output.empty? ? "" : " WHERE #{output}"
     else
-      output
+      output.empty? ? nil : output
     end
   end
   
