@@ -138,7 +138,7 @@ class Where
     def initialize(criteria, is_or = false)
       @is_or=is_or
       
-      if criteria.class==Array      # if it's an array, sanitize it
+      if criteria.class==Array && criteria.length>1      # if it's an array, sanitize it
         @criteria = ActiveRecord::Base.send(:sanitize_sql, criteria)
       else
         @criteria = criteria.to_s   # otherwise, run to_s.  If it's a recursive Where clause, it will return the sql we need
