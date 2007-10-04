@@ -44,4 +44,16 @@ class WhereTest < Test::Unit::TestCase
   def test__where_new_chained_and
     assert_equal("(x=1) AND (x=2)", Where.new("x=1").and("x=2").to_sql)
   end
+  
+  def test__where_and_where
+    where = Where.new
+    where.and Where.new("x=1")
+    assert_equal("((x=1))", where.to_s)
+  end
+  
+  def test__where_or_where
+    where = Where.new
+    where.or Where.new("x=1")
+    assert_equal("((x=1))", where.to_s)
+  end
 end
