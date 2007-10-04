@@ -39,10 +39,16 @@ class Where
   # optionally, you can provide a criteria, like the following:
   #   
   #   Where.initialize "joke_title = ?", "He says, 'Under there', to which I reply, 'under where?'"
-  def initialize(criteria=nil, *params)
+  def initialize(criteria=nil, *params, &block)
     @clauses=Array.new
     
     self.and(criteria, *params) unless criteria.nil?
+    
+    yield(self) if block_given?
+  end
+  
+  def initialize_copy(from)
+    @clauses = from.instance_variable_get("@clauses").clone
   end
   
   # Appends an <b>and</b> expression to your where clause
@@ -54,9 +60,13 @@ class Where
   #   where.to_s
   #   
   #   # => "(name = 'Tim O''brien')
-  def and(criteria, *params)
-    criteria = [criteria] + params unless params.empty?
-    @clauses << Clause.new(criteria) unless criteria.blank?
+  def and(*params, &block)
+    if block_given?
+      yield(w = Where.new)
+      @clauses << Clause.new(w)
+    else
+      @clauses << Clause.new(params) unless params.blank?
+    end
     self
   end
   
@@ -72,9 +82,13 @@ class Where
   #   where.to_s
   #   
   #   # => "(name = 'Tim O''brien') or (name = 'Tim O''neal')"
-  def or(criteria, *params)
-    criteria = [criteria] + params unless params.empty?
-    @clauses << Clause.new(criteria, true) unless criteria.blank?
+  def or(*params, &block)
+    if block_given?
+      yield(w = Where.new)
+      @clauses << Clause.new(w, true)
+    else
+      @clauses << Clause.new(params, true) unless params.blank?
+    end
     self
   end
   
