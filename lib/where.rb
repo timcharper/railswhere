@@ -61,13 +61,7 @@ class Where
   #   
   #   # => "(name = 'Tim O''brien')
   def and(*params, &block)
-    if block_given?
-      yield(w = Where.new)
-      @clauses << Clause.new(w)
-    else
-      @clauses << Clause.new(params) unless params.blank?
-    end
-    self
+    append_clause(params, "AND", &block)
   end
   
   alias << and
@@ -83,13 +77,17 @@ class Where
   #   
   #   # => "(name = 'Tim O''brien') or (name = 'Tim O''neal')"
   def or(*params, &block)
-    if block_given?
-      yield(w = Where.new)
-      @clauses << Clause.new(w, true)
-    else
-      @clauses << Clause.new(params, true) unless params.blank?
-    end
-    self
+    append_clause(params, "OR", &block)
+  end
+  
+  # Same as or, but negates the whole expression
+  def or_not(*params, &block)
+    append_clause(params, "OR NOT", &block)
+  end
+  
+  # Same as and, but negates the whole expression
+  def and_not(*params, &block)
+    append_clause(params, "AND NOT", &block)
   end
   
   # Converts the where clause to a SQL string.
@@ -97,8 +95,8 @@ class Where
     output=""
     
     @clauses.each_index{|index|
-      omit_clause = (index==0)
-      output << @clauses[index].to_s(omit_clause)  # Omit the clause if index=0
+      omit_conjuction = (index==0)
+      output << @clauses[index].to_s(omit_conjuction)  # Omit the clause if index=0
     }
     case format
     when :where
@@ -133,23 +131,37 @@ class Where
   
   alias :empty? :blank? 
    
+protected  
+  def append_clause(params, conjuction = "AND", &block) # :nodoc:
+    if block_given?
+      yield(w = Where.new)
+      @clauses << Clause.new(w, conjuction)
+    else
+      @clauses << Clause.new(params, conjuction) unless params.first.blank?
+    end
+    self
+  end
+  
   # Used internally to +Where+.   You shouldn't have any reason to interact with this class. 
-  class Clause
-    def initialize(criteria, is_or = false)
-      @is_or=is_or
-      
-      if criteria.class==Array && criteria.length>1      # if it's an array, sanitize it
+  class Clause 
+    
+    def initialize(criteria, conjuction = "AND") # :nodoc:
+      @conjuction=conjuction.upcase
+      criteria = criteria.first if criteria.class==Array && criteria.length==1
+        
+      if criteria.class==Array   # if it's an array, sanitize it
         @criteria = ActiveRecord::Base.send(:sanitize_sql, criteria)
       else
         @criteria = criteria.to_s   # otherwise, run to_s.  If it's a recursive Where clause, it will return the sql we need
       end
     end
     
-    def to_s(omit_clause=false)
-      if omit_clause
-        "(#{@criteria})"
+    def to_s(omit_conjuction=false) # :nodoc:
+      if omit_conjuction
+        output = @conjuction.include?("NOT") ? "NOT " : ""
+        output << "(#{@criteria})"
       else
-        " #{@is_or ? 'OR' : 'AND'} (#{@criteria})"
+        " #{@conjuction} (#{@criteria})"
       end
     end
   end
