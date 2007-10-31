@@ -24,13 +24,13 @@ class WhereTest < Test::Unit::TestCase
   def test__where_and_block__should_work
     where = Where.new {|w| 
       w.and {|y|
-        y.or "x = ?", 1
-        y.or "x = ?", 2
+        y | ["x = ?", 1]
+        y | ["x = ?", 2]
       }
       
       w.and {|y|
-        y.or "y = ?", 1
-        y.or "y = ?", 2
+        y | ["y = ?", 1]
+        y | ["y = ?", 2]
       }
     }.to_s
     
@@ -93,4 +93,9 @@ class WhereTest < Test::Unit::TestCase
     where.or Where.new("x=1")
     assert_equal("((x=1))", where.to_s)
   end
+  
+  def test__where_method_invocation
+    assert_equal( "(x=1)", Where{|w| w & ["x=?", 1] }.to_s)
+  end
+  
 end

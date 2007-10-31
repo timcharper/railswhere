@@ -90,6 +90,22 @@ class Where
     append_clause(params, "AND NOT", &block)
   end
   
+  def &(params)
+    self.and(*params)
+  end
+  
+  def |(params)
+    self.or(*params)
+  end
+  
+  def self.&(params)
+    Where.new(*params)
+  end
+  
+  def self.|(params)
+    Where.new.or(*params)
+  end
+  
   # Converts the where clause to a SQL string.
   def to_s(format=nil)
     output=""
@@ -165,4 +181,8 @@ protected
       end
     end
   end
+end
+
+def Where(&block)
+  Where.new(&block)
 end
