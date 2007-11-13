@@ -183,6 +183,6 @@ protected
   end
 end
 
-def Where(&block)
-  Where.new(&block)
+def Where(*params, &block)
+  Where.new(*params, &block)
 end

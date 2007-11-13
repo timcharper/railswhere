@@ -24,13 +24,13 @@ class WhereTest < Test::Unit::TestCase
   def test__where_and_block__should_work
     where = Where.new {|w| 
       w.and {|y|
-        y | ["x = ?", 1]
-        y | ["x = ?", 2]
+        y.or "x = ?", 1
+        y.or "x = ?", 2
       }
       
       w.and {|y|
-        y | ["y = ?", 1]
-        y | ["y = ?", 2]
+        y.or "y = ?", 1
+        y.or "y = ?", 2
       }
     }.to_s
     
