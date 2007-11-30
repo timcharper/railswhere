@@ -9,7 +9,7 @@ ActiveRecord::Base.establish_connection(
   :database => File.join(File.dirname(__FILE__), "db/test.db")
 )
 
-for file in ["../lib/where.rb"]
+for file in ["../lib/where.rb", "../lib/search_builder.rb"]
   require File.expand_path(File.join(File.dirname(__FILE__), file))
 end
 
