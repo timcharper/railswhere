@@ -37,7 +37,7 @@ class WhereTest < Test::Unit::TestCase
     assert_equal("((x = 1) OR (x = 2)) AND ((y = 1) OR (y = 2))", where.to_s)
   end
   
-  def test__where__and_not__no_perfix__should_work
+  def test__where__and_not__no_prefix__should_work
     w = Where.new
     
     w.and_not{|y| y.or("x = ?", 1).or("x = ?", 2) }
@@ -45,6 +45,14 @@ class WhereTest < Test::Unit::TestCase
     assert_equal("NOT ((x = 1) OR (x = 2))", w.to_s)
   end
   
+  def test__and_nested_blank__should_ignore
+    
+    w = Where("x = ?", 1)
+    w.and{|inner|
+      inner.and "x = ?", 2 if false
+    }
+    assert_equal("(x = 1)", w.to_sql)
+  end
   
   def test__where__and_not__with_prefix__should_work
     w = Where.new

@@ -109,13 +109,14 @@ class SearchBuilder
   end
   
   def self.cast_to(value, type)
-    return value if value.nil?
+    return nil if value.blank?
     
     case type
     when nil
       value
     when :array
       value = Array===value ? value : [value]
+      value.reject{|v| v.blank?}
     when :time
       Time.parse(value)
     when :date

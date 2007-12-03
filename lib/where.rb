@@ -110,9 +110,9 @@ class Where
   def to_s(format=nil)
     output=""
     
-    @clauses.each_index{|index|
-      omit_conjuction = (index==0)
-      output << @clauses[index].to_s(omit_conjuction)  # Omit the clause if index=0
+    @clauses.each_with_index{|clause, index|
+      clause_output = clause.to_s(index==0) # Omit the clause if index==0
+      output << clause_output unless clause_output.blank?
     }
     case format
     when :where
@@ -173,6 +173,7 @@ protected
     end
     
     def to_s(omit_conjuction=false) # :nodoc:
+      return nil if @criteria.blank?
       if omit_conjuction
         output = @conjuction.include?("NOT") ? "NOT " : ""
         output << "(#{@criteria})"
