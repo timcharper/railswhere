@@ -90,6 +90,10 @@ class WhereTest < Test::Unit::TestCase
     assert_equal("(x=1) AND (x=2)", Where.new("x=1").and("x=2").to_sql)
   end
   
+  def test__where_to_s__when_blank__returns_empty_string
+    assert_equal "", Where.new.to_s
+  end
+  
   def test__where_and_where
     where = Where.new
     where.and Where.new("x=1")
