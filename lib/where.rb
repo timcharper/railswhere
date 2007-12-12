@@ -118,7 +118,7 @@ class Where
     when :where
       output.empty? ? "" : " WHERE #{output}"
     else
-      output.empty? ? nil : output
+      output.empty? ? "" : output
     end
   end
   
@@ -173,7 +173,7 @@ protected
     end
     
     def to_s(omit_conjuction=false) # :nodoc:
-      return nil if @criteria.blank?
+      return "" if @criteria.blank?
       if omit_conjuction
         output = @conjuction.include?("NOT") ? "NOT " : ""
         output << "(#{@criteria})"
