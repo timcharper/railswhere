@@ -33,16 +33,25 @@
 
 
 class Where
-  
+  attr_accessor :default_params
+  attr_reader :clauses, :target
   # Constructs a new where clause
   # 
   # optionally, you can provide a criteria, like the following:
   #   
   #   Where.initialize "joke_title = ?", "He says, 'Under there', to which I reply, 'under where?'"
-  def initialize(criteria=nil, *params, &block)
+  def initialize(criteria_or_options=nil, *params, &block)
     @clauses=Array.new
-    
+    @target = self
+    if criteria_or_options.is_a?(Hash)
+      criteria = nil
+      options = criteria_or_options
+    else
+      criteria = criteria_or_options
+      options = {}
+    end
     self.and(criteria, *params) unless criteria.nil?
+    self.default_params = options[:default_params] || {}
     
     yield(self) if block_given?
   end
@@ -61,7 +70,7 @@ class Where
   #   
   #   # => "(name = 'Tim O''brien')
   def and(*params, &block)
-    append_clause(params, "AND", &block)
+    @target.append_clause(params, "AND", &block)
   end
   
   alias << and
@@ -77,17 +86,17 @@ class Where
   #   
   #   # => "(name = 'Tim O''brien') or (name = 'Tim O''neal')"
   def or(*params, &block)
-    append_clause(params, "OR", &block)
+    @target.append_clause(params, "OR", &block)
   end
   
   # Same as or, but negates the whole expression
   def or_not(*params, &block)
-    append_clause(params, "OR NOT", &block)
+    @target.append_clause(params, "OR NOT", &block)
   end
   
   # Same as and, but negates the whole expression
   def and_not(*params, &block)
-    append_clause(params, "AND NOT", &block)
+    @target.append_clause(params, "AND NOT", &block)
   end
   
   def &(params)
@@ -110,15 +119,15 @@ class Where
   def to_s(format=nil)
     output=""
     
-    @clauses.each_with_index{|clause, index|
-      clause_output = clause.to_s(index==0) # Omit the clause if index==0
-      output << clause_output unless clause_output.blank?
+    @clauses.each_index{|index|
+      omit_conjuction = (index==0)
+      output << @clauses[index].to_s(omit_conjuction)  # Omit the clause if index=0
     }
     case format
     when :where
       output.empty? ? "" : " WHERE #{output}"
     else
-      output.empty? ? "" : output
+      output.empty? ? nil : output
     end
   end
   
@@ -150,10 +159,14 @@ class Where
 protected  
   def append_clause(params, conjuction = "AND", &block) # :nodoc:
     if block_given?
-      yield(w = Where.new)
-      @clauses << Clause.new(w, conjuction)
+      previous_target = @target
+      @target = Where.new(:default_params => default_params)
+      yield
+      previous_target.clauses << Clause.new(@target, conjuction)
+      @target = previous_target
     else
-      @clauses << Clause.new(params, conjuction) unless params.first.blank?
+      params = params + [default_params] if params.length == 1 && params.first.is_a?(String)
+      @target.clauses << Clause.new(params, conjuction) unless params.first.blank?
     end
     self
   end
@@ -173,7 +186,6 @@ protected
     end
     
     def to_s(omit_conjuction=false) # :nodoc:
-      return "" if @criteria.blank?
       if omit_conjuction
         output = @conjuction.include?("NOT") ? "NOT " : ""
         output << "(#{@criteria})"
