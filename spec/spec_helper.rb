@@ -1,8 +1,6 @@
 require "rubygems"
-
-require 'test/unit'
 require 'active_record'
-
+require 'spec'
 
 ActiveRecord::Base.establish_connection(
   :adapter => "sqlite3", 
@@ -12,8 +10,6 @@ ActiveRecord::Base.establish_connection(
 for file in ["../lib/where.rb", "../lib/search_builder.rb"]
   require File.expand_path(File.join(File.dirname(__FILE__), file))
 end
-
-def dbg; require 'ruby-debug'; debugger; end
 
 class Object
   def to_regexp
