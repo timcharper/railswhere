@@ -115,4 +115,7 @@ describe Where do
     where.to_s.should == "(x = 1)"
   end
   
+  it "should return a valid clause when the where clause is empty" do
+    Where.new.to_s.should == "(true)"
+  end
 end
