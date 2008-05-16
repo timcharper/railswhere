@@ -127,7 +127,7 @@ class Where
     when :where
       output.empty? ? "" : " WHERE #{output}"
     else
-      output.empty? ? nil : output
+      output.empty? ? "(true)" : output
     end
   end
   
