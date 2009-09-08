@@ -179,7 +179,7 @@ protected
       criteria = criteria.first if criteria.class==Array && criteria.length==1
         
       if criteria.class==Array   # if it's an array, sanitize it
-        @criteria = ActiveRecord::Base.send(:sanitize_sql, criteria)
+        @criteria = ActiveRecord::Base.send(:sanitize_sql_array, criteria)
       else
         @criteria = criteria.to_s   # otherwise, run to_s.  If it's a recursive Where clause, it will return the sql we need
       end
