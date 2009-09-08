@@ -17,7 +17,7 @@ describe "SearchBuilder" do
   it "search_builder_date_range__nil_values__shouldnt_append_anything" do
     @sb.range_on("users.created_at", :cast => :date)
     
-    @sb.to_sql.should be_nil
+    @sb.to_sql.should == "(true)"
   end
   
   it "like_search" do
