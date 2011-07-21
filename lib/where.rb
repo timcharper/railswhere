@@ -178,8 +178,14 @@ protected
       @conjuction=conjuction.upcase
       criteria = criteria.first if criteria.class==Array && criteria.length==1
         
-      if criteria.class==Array   # if it's an array, sanitize it
+      case criteria
+      when Array # if it's an array, sanitize it
         @criteria = ActiveRecord::Base.send(:sanitize_sql_array, criteria)
+      when Hash
+        return nil if criteria.empty?
+        @criteria = criteria.keys.sort_by { |v| v.to_s }.map do |field|
+          ActiveRecord::Base.send(:sanitize_sql_array, ["#{field} = ?", criteria[field]])
+        end.join(' AND ')
       else
         @criteria = criteria.to_s   # otherwise, run to_s.  If it's a recursive Where clause, it will return the sql we need
       end
