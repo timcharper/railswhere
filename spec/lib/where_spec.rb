@@ -40,6 +40,13 @@ describe Where do
       where.or Where.new("x=1")
       where.to_s.should == "((x=1))"
     end
+
+    it "ignores nils" do
+      where = Where.new("field1 = 1")
+      where.and(nil)
+      where.and("field2 = 2")
+      where.to_sql.should == "(field1 = 1) AND (field2 = 2)"
+    end
   end
   
   describe "#and" do
